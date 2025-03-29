@@ -1,0 +1,62 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v5.0.0
+  hooks:
+  -   id: check-yaml
+  -   id: end-of-file-fixer
+  -   id: trailing-whitespace
+  -   id: check-yaml
+
+- repo: https://github.com/psf/black
+  rev: 25.1.0
+  hooks:
+    - id: black
+      args:
+      - --line-length=79
+      - --exclude
+      - "migrations*/.*"
+
+
+
+- repo: https://github.com/pycqa/isort
+  rev: 6.0.0
+  hooks:
+    - id: isort
+      args:
+      - --skip
+      - "migrations*/*, *__init__.py, *auth.py"
+
+- repo: https://github.com/PyCQA/flake8
+  rev: 7.1.2
+  hooks:
+    - id: flake8
+      args:
+        - --exclude
+        - "migrations*/*, *__init__.py"
+
+
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.15.0
+  hooks:
+    - id: mypy
+      # args: ["--exclude", "__init__.py"]
+      exclude: '.*init*'
+
+
+
+- repo: local
+  hooks:
+    - id: export-all-requirements
+      name: Export ALL requirements
+      language: system
+      pass_filenames: false
+      entry: poetry export --without-hashes --output ./requirements_all.txt
+      files: ^(pyproject.toml|poetry.lock)$
+
+    - id: export-requirements-without-dev
+      name: Export requirements WITHOUT DEV
+      language: system
+      pass_filenames: false
+      entry: poetry export --without-hashes --without dev --output ./requirements.txt
+      files: ^(pyproject.toml|poetry.lock)$
