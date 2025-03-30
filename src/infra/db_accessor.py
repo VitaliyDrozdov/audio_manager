@@ -1,11 +1,11 @@
 from typing import AsyncGenerator
 
-# isort: skipfile
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.orm import DeclarativeBase
 
 from src.settings import settings
 
@@ -21,3 +21,7 @@ class DBConfig:
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with DBConfig.AsyncSession_() as session:
         yield session
+
+
+class Base(DeclarativeBase):
+    pass

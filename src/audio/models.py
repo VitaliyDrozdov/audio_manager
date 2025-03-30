@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.dependencies import Base
+from src.infra.db_accessor import Base
 
 if TYPE_CHECKING:
     from src.users.models import UserProfile

@@ -1,4 +1,5 @@
 import os
+from functools import lru_cache
 from typing import Literal
 
 from dotenv import load_dotenv
@@ -19,7 +20,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str | None = os.getenv("POSTGRES_USER")
     POSTGRES_PASSWORD: str | None = os.getenv("POSTGRES_PASSWORD")
     POSTGRES_HOST: str | None = os.getenv("POSTGRES_HOST")
-    POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", 5432))
+    POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", 5435))
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
@@ -27,4 +28,9 @@ class Settings(BaseSettings):
     SUPERUSER_PASSWORD: str | None = os.getenv("SUPERUSER_PASSWORD")
 
 
-settings = Settings()
+@lru_cache
+def get_settings():
+    return Settings()
+
+
+settings = get_settings()
