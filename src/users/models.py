@@ -24,7 +24,7 @@ class UserProfile(Base):
     )
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     username: Mapped[str] = mapped_column(
-        String(50), nullable=True, unique=True
+        String(50), nullable=False, unique=True
     )
     password_hash: Mapped[str] = mapped_column(String(100), nullable=False)
     first_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
