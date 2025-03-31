@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 
 
+# TODO: добавить обычные исклюючения(не http) для сервисного слоя
 class UserError(HTTPException):
     """Base exception for user-related errors"""
 
@@ -17,3 +18,13 @@ class UserAlreadyExists(UserError):
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST, detail=message
         )
+
+
+class UserNotFoundError(UserError):
+    def __init__(self, user_id=None):
+        message = (
+            "User not found"
+            if user_id is None
+            else f"User with id {user_id} not found"
+        )
+        super().__init__(status_code=404, detail=message)

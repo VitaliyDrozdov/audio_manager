@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from sqlalchemy import insert, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.exceptions import UserAlreadyExists
+from src.exceptions import UserAlreadyExists, UserNotFoundError
 from src.users.models import UserProfile
 from src.users.schemas import UserCreateSchema, UserResponseSchema
 
@@ -29,6 +29,10 @@ class UserService:
             )
         )
         if existing_user:
+            logging.warning(
+                f"Attempted to create existing user: "
+                f"{user_create.email} {user_create.username}"
+            )
             raise UserAlreadyExists(
                 email=user_create.email, username=user_create.username
             )
@@ -49,9 +53,19 @@ class UserService:
         except Exception as e:
             await self.db_session.rollback()
             logging.error(
-                f"Failed to register user: {user_create.email}. "
+                f"Failed to create user: {user_create.email}. "
                 f"Error: {str(e)}"
             )
             raise
         user_create_data["id"] = res.scalar()
         return UserResponseSchema(**user_create_data)
+
+    async def get_user_by_id(self, user_id: int) -> UserResponseSchema:
+        user = await self.db_session.scalar(
+            select(UserProfile).where(UserProfile.id == user_id)
+        )
+        if not user:
+            logging.warning(f"User not found with ID: {user_id}")
+            raise UserNotFoundError(user_id)
+        logging.info(f"Successfully retrieved user with ID: {user_id}")
+        return user
