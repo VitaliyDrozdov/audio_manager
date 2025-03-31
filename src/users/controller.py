@@ -3,7 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
 from src.dependencies import get_user_service
-from src.users.schemas import UserCreateSchema, UserResponseSchema
+from src.users.schemas import (
+    UserCreateSchema,
+    UserResponseSchema,
+    UserUpdateSchema,
+)
 from src.users.service import UserService
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -36,6 +40,15 @@ async def get_user(
 )
 async def update_user(
     user_service: Annotated[UserService, Depends(get_user_service)],
+    body: UserUpdateSchema,
     user_id: int,
 ):
-    return await user_service.update_user(user_id)
+    return await user_service.update_user(user_id=user_id, user_update=body)
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_id: int,
+):
+    return await user_service.delete_user(user_id)
