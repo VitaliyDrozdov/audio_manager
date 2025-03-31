@@ -36,8 +36,10 @@ class UserService:
             )
             raise UserAlreadyExists(email=email, username=username)
 
-    async def create_user(self, user_create: UserCreateSchema) -> UserProfile:
-        self._check_unique_user(user_create.email, user_create.username)
+    async def create_user(
+        self, user_create: UserCreateSchema
+    ) -> UserResponseSchema:
+        await self._check_unique_user(user_create.email, user_create.username)
         user_create_data = user_create.model_dump(
             exclude_none=True, exclude={"password"}
         )
@@ -59,9 +61,8 @@ class UserService:
                 f"Error: {str(e)}"
             )
             raise
-        # user_create_data["id"] = res.scalar()
-        # return UserResponseSchema(**user_create_data)
-        return res.scalar()
+        user_create_data["id"] = res.scalar()
+        return UserResponseSchema(**user_create_data)
 
     async def get_user_by_id(self, user_id: int) -> UserResponseSchema:
         user = await self.db_session.scalar(

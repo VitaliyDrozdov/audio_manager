@@ -1,9 +1,10 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
 class FileBase(BaseModel):
     filename: str
-    filepath: str
     owner_id: int
     description: str
 
@@ -14,5 +15,6 @@ class FileCreateSchema(FileBase):
 
 class FileResponseSchema(FileBase):
     id: int
-    created_at: str
-    updated_at: str
+    filepath: str
+    created_at: datetime
+    updated_at: datetime | None = None

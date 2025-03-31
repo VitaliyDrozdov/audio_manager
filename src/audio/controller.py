@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 
 from src.audio.schemas import FileCreateSchema, FileResponseSchema
 from src.audio.service import AudiFileService
@@ -13,8 +13,13 @@ router = APIRouter(prefix="/audios", tags=["Audios"])
     "/", response_model=FileResponseSchema, status_code=status.HTTP_201_CREATED
 )
 async def upload_audio(
-    body: FileCreateSchema,
     audio_service: Annotated[AudiFileService, Depends(get_audio_service)],
+    filename: Annotated[str, Form()],
+    owner_id: Annotated[int, Form()],
+    description: Annotated[str, Form()],
     file: UploadFile = File(...),
 ):
-    return await audio_service.upload_file(file_upload=body, file=file)
+    file_data = FileCreateSchema(
+        filename=filename, owner_id=owner_id, description=description
+    )
+    return await audio_service.upload_file(file_upload=file_data, file=file)

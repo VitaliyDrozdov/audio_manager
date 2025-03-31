@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from src.audio.models import AudioFile
-from src.audio.schemas import FileCreateSchema
+from src.audio.schemas import FileCreateSchema, FileResponseSchema
 from src.settings import settings
 from src.users.models import UserProfile
 from src.users.service import UserService
@@ -43,20 +43,24 @@ class AudiFileService:
 
     async def upload_file(
         self, file_upload: FileCreateSchema, file: UploadFile
-    ):
+    ) -> FileResponseSchema:
         await self.user_service.get_user_by_id(file_upload.owner_id)
         data = file_upload.model_dump(exclude_none=True)
-        data["created_at"] = datetime.now(timezone.utc)
+        data["created_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
+        extension = file.filename.split(".")[-1].lower()
         self._create_dir()
         path_ = os.path.join(
-            settings.FILE_UPLOAD_DIRECTORY, file_upload.filename
+            settings.FILE_UPLOAD_DIRECTORY,
+            f"{file_upload.filename}.{extension}",
         )
+        absolute_path = os.path.abspath(path_)
         content = await file.read()
         with open(path_, "wb") as f_write:
             f_write.write(content)
         try:
-            res = await self.db_session.scalar(
-                insert(AudioFile).values(**data)
+            data["filepath"] = absolute_path
+            res = await self.db_session.execute(
+                insert(AudioFile).values(**data).returning(AudioFile.id)
             )
             await self.db_session.commit()
         except Exception as e:
@@ -66,9 +70,8 @@ class AudiFileService:
                 f"Error: {str(e)}"
             )
             raise
-        data["id"] = res.id
-        # return FileResponseSchema(**data)
-        return res
+        data["id"] = res.scalar()
+        return FileResponseSchema(**data)
 
     async def get_files_by_user(self, user_id: int) -> Sequence[AudioFile]:
         await self.user_service.get_user_by_id(user_id)
