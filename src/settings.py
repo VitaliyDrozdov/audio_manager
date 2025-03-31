@@ -10,7 +10,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file="../.env", env_ignore_empty=True, extra="ignore"
+        env_file="./.env", env_ignore_empty=True, extra="ignore"
     )
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
     SECRET_KEY: str
