@@ -1,13 +1,12 @@
 import enum
-from typing import TYPE_CHECKING, List
+from typing import List
 
 from sqlalchemy import Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+# if TYPE_CHECKING:
+from src.audio.models import AudioFile
 from src.infra.db_accessor import Base
-
-if TYPE_CHECKING:
-    from src.audio.models import AudioFile
 
 
 class Roles(enum.Enum):

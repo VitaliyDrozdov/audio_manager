@@ -5,6 +5,7 @@ from passlib.context import CryptContext
 from sqlalchemy import insert, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.exceptions import UserAlreadyExists
 from src.users.models import UserProfile
 from src.users.schemas import UserCreateSchema, UserResponseSchema
 
@@ -28,7 +29,9 @@ class UserService:
             )
         )
         if existing_user:
-            raise ValueError("email or username already exist")
+            raise UserAlreadyExists(
+                email=user_create.email, username=user_create.username
+            )
         user_create_data = user_create.model_dump(
             exclude_none=True, exclude={"password"}
         )
