@@ -1,2 +1,8 @@
+from dataclasses import dataclass
+
+import httpx
+
+
+@dataclass
 class YandexClient:
-    pass
+    async_client: httpx.AsyncClient

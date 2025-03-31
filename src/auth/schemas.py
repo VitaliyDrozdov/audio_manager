@@ -3,14 +3,14 @@ from pydantic import BaseModel, Field
 
 class TokenSchema(BaseModel):
     user_id: int
-
     access_token: str
     token_type: str
 
 
 class TokenData(BaseModel):
-    user_id: int | None = None
+    user_id: str | None = None
     username: str | None = None
+    email: str | None = None
 
 
 class YandexUserData(BaseModel):

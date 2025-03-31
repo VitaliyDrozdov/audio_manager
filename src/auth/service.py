@@ -1,8 +1,11 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from typing import Annotated
 
-from jose import JWTError, jwt
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,6 +20,8 @@ from src.settings import settings
 from src.users.models import UserProfile
 from src.users.service import bcrypt_context
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+
 
 @dataclass
 class AuthService:
@@ -30,7 +35,7 @@ class AuthService:
         pass
 
     @staticmethod
-    def _validate_auth_user(user: UserProfile, password: str) -> None:
+    def _validate_auth_user(user: UserProfile | None, password: str) -> None:
         if not user:
             raise UserNotFoundError()
         if not bcrypt_context.verify(password, user.password_hash):
@@ -46,6 +51,7 @@ class AuthService:
             "sub": email,
             "user_id": str(user_id),
             "username": username,
+            "email": email,
             "exp": datetime.now(timezone.utc) + expires_delta,
         }
         return jwt.encode(
@@ -61,7 +67,10 @@ class AuthService:
             if user_id is not None:
                 user_id = int(user_id)
             username: str = payload.get("username")
-            return TokenData(user_id=user_id, username=username)
+            email: str = payload.get("email")
+            return TokenData(user_id=user_id, username=username, email=email)
+        except ExpiredSignatureError:
+            raise AuthenticationError("Token expired!")
         except JWTError as e:
             logging.warning(f"Token verification failed: {str(e)}")
             raise AuthenticationError()
@@ -87,11 +96,29 @@ class AuthService:
             user_id=user.id, access_token=access_token, token_type="bearer"
         )
 
-    # def get_user_id_from_token(self, token: str) -> int:
-    #     try:
-    #         payload = jwt.decode(
-    #             token=token, key=settings.SECRET_KEY, algorithms="HS256"
-    #         )
-    #     except JWTError:
-    #         raise TokenNotCorrect()
-    #     return payload["user_id"]
+    async def refresh_access_token(self, old_token: str) -> TokenSchema:
+        token_data = self.verify_token(old_token)
+        user = await self.db_session.scalar(
+            select(UserProfile).where(
+                UserProfile.id == int(token_data.user_id)
+            )
+        )
+        if not user:
+            raise UserNotFoundError(user_id=token_data.user_id)
+
+        new_token = self.generate_access_token(
+            email=user.email,
+            user_id=user.id,
+            username=user.username,
+            expires_delta=timedelta(
+                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+            ),
+        )
+        return TokenSchema(
+            user_id=user.id, access_token=new_token, token_type="bearer"
+        )
+
+    async def get_current_user(
+        self, token: Annotated[str, Depends(oauth2_scheme)]
+    ):
+        return self.verify_token(token)
