@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 
 class TokenSchema(BaseModel):
@@ -19,3 +19,18 @@ class YandexUserData(BaseModel):
     name: str = Field(alias="real_name")
     default_email: str
     access_token: str
+
+
+class YandexAccessResponse(TokenSchema):
+    username: str | None = None
+    email: str | None = None
+
+
+class OauthRefresh(BaseModel):
+    email: EmailStr
+
+
+class BaseAuth(BaseModel):
+    email: EmailStr
+    password: str
+    username: str

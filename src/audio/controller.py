@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from src.audio.schemas import FileCreateSchema, FileResponseSchema
 from src.audio.service import AudiFileService
+from src.auth.schemas import TokenData
 from src.dependencies import get_audio_service, get_current_user
 from src.exceptions import FileNotSupported
 
@@ -21,14 +22,14 @@ router = APIRouter(
 async def upload_audio(
     audio_service: Annotated[AudiFileService, Depends(get_audio_service)],
     filename: Annotated[str, Form()],
-    owner_id: Annotated[int, Form()],
+    current_user: Annotated[TokenData, Depends(get_current_user)],
     description: Annotated[str, Form()],
     file: UploadFile = File(...),
 ):
     try:
         file_data = FileCreateSchema(
             filename=filename,
-            owner_id=owner_id,
+            owner_id=current_user.user_id,
             description=description,
             file=file,
         )

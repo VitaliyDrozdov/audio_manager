@@ -1,16 +1,18 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
 
-from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.client import YandexClient
-from src.auth.schemas import TokenData, TokenSchema
+from src.auth.schemas import (
+    BaseAuth,
+    TokenData,
+    TokenSchema,
+    YandexAccessResponse,
+)
 from src.exceptions import (
     AuthenticationError,
     UserNotCorrectPasswordException,
@@ -20,8 +22,6 @@ from src.settings import settings
 from src.users.models import Roles, UserProfile
 from src.users.schemas import UserCreateSchema
 from src.users.service import UserService, bcrypt_context
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 @dataclass
@@ -83,11 +83,14 @@ class AuthService:
         return user
 
     async def login(
-        self, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+        self,
+        form_data: BaseAuth,
     ) -> TokenSchema:
         user = await self.authenticate_user(
-            form_data.username, form_data.password
+            form_data.email, form_data.password
         )
+
+        self._validate_auth_user(user, form_data.password)
         access_token = self.generate_access_token(
             user_id=user.id,
             username=user.username,
@@ -126,7 +129,6 @@ class AuthService:
 
     async def yandex_auth(self, code: str):
         yandex_user_data = await self.yandex_client.get_user_info(code=code)
-
         user = await self.user_service.get_user_by_email(
             email=yandex_user_data.default_email
         )
@@ -139,14 +141,19 @@ class AuthService:
                     minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
                 ),
             )
-            return TokenSchema(user_id=user.id, access_token=access_token)
+            return YandexAccessResponse(
+                user_id=user.id,
+                access_token=access_token,
+                username=user.username,
+                email=user.email,
+            )
 
         create_user = UserCreateSchema(
-            first_name=None,
-            last_name=None,
+            first_name="",
+            last_name="",
             email=yandex_user_data.default_email,
             username=yandex_user_data.name,
-            password=None,
+            password="",
             role=Roles.SIMPLE_USER,
         )
         created_user = await self.user_service.create_user(create_user)
@@ -159,4 +166,9 @@ class AuthService:
             ),
         )
 
-        return TokenSchema(user_id=created_user.id, access_token=access_token)
+        return YandexAccessResponse(
+            user_id=created_user.id,
+            access_token=access_token,
+            username=create_user.username,
+            email=create_user.email,
+        )

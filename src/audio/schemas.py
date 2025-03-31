@@ -32,6 +32,3 @@ class FileResponseSchema(FileBase):
     filepath: str
     created_at: datetime
     updated_at: datetime | None = None
-
-    # class Config:
-    #     orm_mode = True

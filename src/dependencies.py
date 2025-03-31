@@ -1,15 +1,19 @@
 from typing import Annotated
 
 import httpx
-from fastapi import Depends
+from fastapi import Depends, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.audio.service import AudiFileService
 from src.auth.client import YandexClient
 from src.auth.schemas import TokenData
-from src.auth.service import AuthService, oauth2_scheme
+from src.auth.service import AuthService
 from src.infra.db_accessor import db_config
 from src.users.service import UserService
+
+reusable_oauth2 = HTTPBearer()
+Token = Annotated[HTTPAuthorizationCredentials, Security(reusable_oauth2)]
 
 
 async def get_user_service(
@@ -49,6 +53,6 @@ async def get_auth_service(
 
 async def get_current_user(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token: HTTPAuthorizationCredentials = Security(reusable_oauth2),
 ) -> TokenData:
-    return auth_service._verify_token(token)
+    return auth_service._verify_token(token.credentials)

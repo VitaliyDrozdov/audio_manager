@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 
-from src.dependencies import get_user_service
+from src.dependencies import get_current_user, get_user_service
 from src.users.schemas import (
     UserCreateSchema,
     UserResponseSchema,
@@ -11,8 +11,7 @@ from src.users.schemas import (
 from src.users.service import UserService
 
 router = APIRouter(
-    prefix="/users",
-    tags=["Users"],
+    prefix="/users", tags=["Users"], dependencies=[Depends(get_current_user)]
 )
 
 

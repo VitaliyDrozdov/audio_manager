@@ -3,11 +3,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from src.auth.schemas import TokenData, TokenSchema
+from src.auth.schemas import (
+    BaseAuth,
+    TokenData,
+    TokenSchema,
+    YandexAccessResponse,
+)
 from src.auth.service import AuthService
 from src.dependencies import (
+    Token,
     get_auth_service,
     get_current_user,
     get_user_service,
@@ -20,8 +25,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/token", response_model=TokenSchema)
 async def login(
-    # body: UserCreateSchema,
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    form_data: BaseAuth,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
     return await auth_service.login(form_data)
@@ -30,9 +34,11 @@ async def login(
 @router.post("/refresh", response_model=TokenSchema)
 async def refresh_token(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
-    token: str = Depends(OAuth2PasswordBearer(tokenUrl="auth/token")),
+    token: Token,
+    current_user: Annotated[TokenData, Depends(get_current_user)],
 ):
-    return await auth_service.refresh_access_token(token)
+
+    return await auth_service.refresh_access_token(token.credentials)
 
 
 @router.get("/me", response_model=UserResponseSchema)
@@ -48,11 +54,10 @@ async def yandex_login(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
     redirect_url = auth_service.get_yandex_redirect_url()
-
     return RedirectResponse(redirect_url)
 
 
-@router.get("/yandex/callback")
+@router.get("/yandex/callback", response_model=YandexAccessResponse)
 async def yandex_callback(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     code: str,
