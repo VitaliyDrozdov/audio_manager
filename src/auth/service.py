@@ -45,13 +45,19 @@ class AuthService:
             raise UserNotCorrectPasswordException()
 
     def generate_access_token(
-        self, email: str, user_id: int, username: str, expires_delta: timedelta
+        self,
+        email: str,
+        user_id: int,
+        username: str,
+        role: int,
+        expires_delta: timedelta,
     ) -> str:
         payload = {
             "sub": email,
             "user_id": user_id,
             "username": username,
             "email": email,
+            "role": role.value,
             "exp": datetime.now(timezone.utc) + expires_delta,
         }
         return jwt.encode(
@@ -68,7 +74,13 @@ class AuthService:
             user_id: int = int(payload.get("user_id"))
             username: str = payload.get("username")
             email: str = payload.get("email")
-            return TokenData(user_id=user_id, username=username, email=email)
+            role: int = payload.get("role", Roles.SIMPLE_USER)
+            return TokenData(
+                user_id=user_id,
+                username=username,
+                email=email,
+                role=role,
+            )
         except ExpiredSignatureError:
             raise AuthenticationError("Token expired!")
         except JWTError as e:
@@ -95,6 +107,7 @@ class AuthService:
             user_id=user.id,
             username=user.username,
             email=user.email,
+            role=user.role,
             expires_delta=timedelta(
                 minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
             ),
@@ -119,6 +132,7 @@ class AuthService:
             email=user.email,
             user_id=user.id,
             username=user.username,
+            role=user.role,
             expires_delta=timedelta(
                 minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
             ),
@@ -137,6 +151,7 @@ class AuthService:
                 user_id=user.id,
                 username=user.username,
                 email=user.email,
+                role=user.role,
                 expires_delta=timedelta(
                     minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
                 ),
@@ -161,6 +176,7 @@ class AuthService:
             user_id=created_user.id,
             username=created_user.username,
             email=created_user.email,
+            role=create_user.role,
             expires_delta=timedelta(
                 minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
             ),

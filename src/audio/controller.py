@@ -8,6 +8,8 @@ from src.audio.service import AudiFileService
 from src.auth.schemas import TokenData
 from src.dependencies import get_audio_service, get_current_user
 from src.exceptions import FileNotSupported
+from src.permissions import roles_required
+from src.users.models import Roles
 
 router = APIRouter(
     prefix="/audios",
@@ -55,5 +57,8 @@ async def get_files_by_user_id(
 async def delete_file(
     audio_service: Annotated[AudiFileService, Depends(get_audio_service)],
     file_id: int,
+    current_user: Annotated[
+        TokenData, Depends(roles_required(Roles.SUPERUSER))
+    ],
 ):
     return await audio_service.delete_file(file_id)
