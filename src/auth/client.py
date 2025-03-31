@@ -1,0 +1,2 @@
+class YandexClient:
+    pass
