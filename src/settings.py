@@ -15,22 +15,23 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
     SECRET_KEY: str
 
-    POSTGRES_DB: str = ""
-    POSTGRES_USER: str = ""
-    POSTGRES_PASSWORD: str = ""
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
     POSTGRES_PORT: int
 
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    ALGORITHM: str
 
-    SUPERUSER_EMAIL: EmailStr | None = None
-    SUPERUSER_PASSWORD: str = ""
+    SUPERUSER_EMAIL: EmailStr
+    SUPERUSER_PASSWORD: str
 
-    FILE_UPLOAD_DIRECTORY: str = ""
+    FILE_UPLOAD_DIRECTORY: str
 
-    YANDEX_CLIENT_ID: str = ""
-    YANDEX_SECRET_KEY: str = ""
-    YANDEX_TOKEN_URL: str = "https://oauth.yandex.ru/token"
+    YANDEX_CLIENT_ID: str
+    YANDEX_SECRET_KEY: str
+    YANDEX_TOKEN_URL: str
     YANDEX_REDIRECT_URI: str
 
     @property

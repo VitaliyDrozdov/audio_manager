@@ -70,3 +70,10 @@ class AuthenticationError(HTTPException):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=message
         )
+
+
+class YandexAuthenticationError(HTTPException):
+    def __init__(self, message: str = "Could not authenticate to Yandex API"):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=message
+        )

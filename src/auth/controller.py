@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -56,5 +57,5 @@ async def yandex_callback(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     code: str,
 ):
-    print(code, "code")
+    logging.info(f"Yandex access token: {code}")
     return await auth_service.yandex_auth(code)

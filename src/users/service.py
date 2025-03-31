@@ -79,8 +79,9 @@ class UserService:
             select(UserProfile).where(UserProfile.email == email)
         )
         if not user:
-            logging.warning(f"User not found with email: {email}")
-            raise UserNotFoundError(email)
+            return None
+        #     logging.warning(f"User not found with email: {email}")
+        #     raise UserNotFoundError(email)
         logging.info(f"Successfully retrieved user with email: {email}")
         return user
 

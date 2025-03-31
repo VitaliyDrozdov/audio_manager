@@ -55,13 +55,15 @@ class AuthService:
             "exp": datetime.now(timezone.utc) + expires_delta,
         }
         return jwt.encode(
-            claims=payload, key=settings.SECRET_KEY, algorithm="HS256"
+            claims=payload,
+            key=settings.SECRET_KEY,
+            algorithm=settings.ALGORITHM,
         )
 
     def _verify_token(self, token: str) -> TokenData:
         try:
             payload = jwt.decode(
-                token, settings.SECRET_KEY, algorithms="HS256"
+                token, settings.SECRET_KEY, algorithms=settings.ALGORITHM
             )
             user_id: int = int(payload.get("user_id"))
             username: str = payload.get("username")
@@ -125,10 +127,10 @@ class AuthService:
     async def yandex_auth(self, code: str):
         yandex_user_data = await self.yandex_client.get_user_info(code=code)
 
-        if user := await self.user_service.get_user_by_email(
+        user = await self.user_service.get_user_by_email(
             email=yandex_user_data.default_email
-        ):
-
+        )
+        if user is not None:
             access_token = self.generate_access_token(
                 user_id=user.id,
                 username=user.username,
