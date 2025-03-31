@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     SUPERUSER_EMAIL: EmailStr | None = os.getenv("SUPERUSER_EMAIL")
     SUPERUSER_PASSWORD: str | None = os.getenv("SUPERUSER_PASSWORD")
 
+    FILE_UPLOAD_DIRECTORY: str = os.getenv("FILE_UPLOAD_DIRECTORY")
+
 
 @lru_cache
 def get_settings():

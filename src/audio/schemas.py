@@ -8,10 +8,11 @@ class FileBase(BaseModel):
     description: str
 
 
-class FileCreate(FileBase):
+class FileCreateSchema(FileBase):
     pass
 
 
-class FileResponse(FileBase):
+class FileResponseSchema(FileBase):
     id: int
+    created_at: str
     updated_at: str

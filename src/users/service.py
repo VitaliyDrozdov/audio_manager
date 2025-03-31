@@ -36,9 +36,7 @@ class UserService:
             )
             raise UserAlreadyExists(email=email, username=username)
 
-    async def create_user(
-        self, user_create: UserCreateSchema
-    ) -> UserResponseSchema:
+    async def create_user(self, user_create: UserCreateSchema) -> UserProfile:
         self._check_unique_user(user_create.email, user_create.username)
         user_create_data = user_create.model_dump(
             exclude_none=True, exclude={"password"}
@@ -61,8 +59,9 @@ class UserService:
                 f"Error: {str(e)}"
             )
             raise
-        user_create_data["id"] = res.scalar()
-        return UserResponseSchema(**user_create_data)
+        # user_create_data["id"] = res.scalar()
+        # return UserResponseSchema(**user_create_data)
+        return res.scalar()
 
     async def get_user_by_id(self, user_id: int) -> UserResponseSchema:
         user = await self.db_session.scalar(
@@ -91,15 +90,16 @@ class UserService:
                 f"Failed to update user: {user.email}. " f"Error: {str(e)}"
             )
             raise
-        user_data = {
-            "id": user.id,
-            "email": user.email,
-            "username": user.username,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "role": user.role,
-        }
-        return UserResponseSchema(**user_data)
+        # user_data = {
+        #     "id": user.id,
+        #     "email": user.email,
+        #     "username": user.username,
+        #     "first_name": user.first_name,
+        #     "last_name": user.last_name,
+        #     "role": user.role,
+        # }
+        # return UserResponseSchema(**user_data)
+        return user
 
     async def delete_user(self, user_id: int) -> None:
         user = await self.get_user_by_id(user_id)

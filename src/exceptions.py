@@ -27,4 +27,4 @@ class UserNotFoundError(UserError):
             if user_id is None
             else f"User with id {user_id} not found"
         )
-        super().__init__(status_code=404, detail=message)
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=message)
