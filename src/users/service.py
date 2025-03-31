@@ -52,7 +52,6 @@ class UserService:
                 .values(**user_create_data)
                 .returning(UserProfile.id)
             )
-            # await self.db_session.flush()
             await self.db_session.commit()
         except Exception as e:
             await self.db_session.rollback()
@@ -91,15 +90,6 @@ class UserService:
                 f"Failed to update user: {user.email}. " f"Error: {str(e)}"
             )
             raise
-        # user_data = {
-        #     "id": user.id,
-        #     "email": user.email,
-        #     "username": user.username,
-        #     "first_name": user.first_name,
-        #     "last_name": user.last_name,
-        #     "role": user.role,
-        # }
-        # return UserResponseSchema(**user_data)
         return user
 
     async def delete_user(self, user_id: int) -> None:

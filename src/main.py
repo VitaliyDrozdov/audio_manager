@@ -10,5 +10,5 @@ register_routes(app)
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", reload=True, port=8108)
+    uvicorn.run("main:app", reload=True, port=8110)
     register_routes(app)

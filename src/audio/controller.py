@@ -33,3 +33,22 @@ async def upload_audio(
         raise FileNotSupported()
 
     return await audio_service.upload_file(file_upload=file_data, file=file)
+
+
+@router.get("/{user_id}/files", response_model=list[FileResponseSchema])
+async def get_files_by_user_id(
+    audio_service: Annotated[AudiFileService, Depends(get_audio_service)],
+    user_id: int,
+):
+
+    return await audio_service.get_files_by_user(
+        user_id=user_id,
+    )
+
+
+@router.delete("/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_file(
+    audio_service: Annotated[AudiFileService, Depends(get_audio_service)],
+    file_id: int,
+):
+    return await audio_service.delete_file(file_id)

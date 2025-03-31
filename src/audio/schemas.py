@@ -8,12 +8,12 @@ ALLOWED_EXTENSIONS = {"mp3", "wav", "flac", "ogg"}
 
 class FileBase(BaseModel):
     filename: str
-    owner_id: int
     description: str
 
 
 class FileCreateSchema(FileBase):
     file: UploadFile
+    owner_id: int
 
     @field_validator("file", mode="after")
     @classmethod
@@ -32,3 +32,6 @@ class FileResponseSchema(FileBase):
     filepath: str
     created_at: datetime
     updated_at: datetime | None = None
+
+    # class Config:
+    #     orm_mode = True

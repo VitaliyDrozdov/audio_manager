@@ -46,3 +46,13 @@ class FileNotSupported(FileError):
         super().__init__(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=message
         )
+
+
+class FileNotFoundError_(FileError):
+    def __init__(self, file_id=None):
+        message = (
+            "file not found"
+            if file_id is None
+            else f"file with id {file_id} not found"
+        )
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=message)

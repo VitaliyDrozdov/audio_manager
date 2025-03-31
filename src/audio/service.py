@@ -5,12 +5,13 @@ from datetime import datetime, timezone
 from typing import Sequence
 
 from fastapi import UploadFile
-from sqlalchemy import insert, select
+from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from src.audio.models import AudioFile
 from src.audio.schemas import FileCreateSchema, FileResponseSchema
+from src.exceptions import FileNotFoundError_
 from src.settings import settings
 from src.users.models import UserProfile
 from src.users.service import UserService
@@ -85,3 +86,32 @@ class AudiFileService:
         )
 
         return res.all()
+
+    async def get_file_by_id(self, file_id: int) -> AudioFile:
+        file = await self.db_session.scalar(
+            select(AudioFile).where(AudioFile.id == file_id)
+        )
+        if not file:
+            logging.warning(f"file not found with ID: {file_id}")
+            raise FileNotFoundError_(file_id)
+        logging.info(f"Successfully retrieved file with ID: {file_id}")
+        return file
+
+    async def delete_file(self, file_id: int) -> None:
+        file = await self.get_file_by_id(file_id)
+        try:
+            res = await self.db_session.execute(
+                delete(AudioFile).where(AudioFile.id == file_id)
+            )
+            await self.db_session.commit()
+            if res.rowcount == 0:
+                logging.error(
+                    f"file '{file_id}' was not deleted. res.rowcount != 0"
+                )
+                raise ValueError()
+        except Exception as e:
+            await self.db_session.rollback()
+            logging.error(
+                f"Failed to delete file: {file.id}. " f"Error: {str(e)}"
+            )
+            raise
