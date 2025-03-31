@@ -16,4 +16,26 @@ async def create_user(
     body: UserCreateSchema,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
-    return await user_service.create_user(user_create=body)
+    return await user_service.create_user(body)
+
+
+@router.get(
+    "/{user_id}",
+    response_model=UserResponseSchema,
+)
+async def get_user(
+    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_id: int,
+):
+    return await user_service.get_user_by_id(user_id)
+
+
+@router.put(
+    "/{user_id}",
+    response_model=UserResponseSchema,
+)
+async def update_user(
+    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_id: int,
+):
+    return await user_service.update_user(user_id)
