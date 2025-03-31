@@ -11,6 +11,7 @@
 
 # userfiles
 *sb.py
+files/
 
 
 data/
@@ -18,7 +19,6 @@ data/
 __pycache__/
 .vscode/
 .venv/
-
 
 
 # mypy

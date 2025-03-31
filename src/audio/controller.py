@@ -1,10 +1,12 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from pydantic import ValidationError
 
 from src.audio.schemas import FileCreateSchema, FileResponseSchema
 from src.audio.service import AudiFileService
 from src.dependencies import get_audio_service
+from src.exceptions import FileNotSupported
 
 router = APIRouter(prefix="/audios", tags=["Audios"])
 
@@ -19,7 +21,15 @@ async def upload_audio(
     description: Annotated[str, Form()],
     file: UploadFile = File(...),
 ):
-    file_data = FileCreateSchema(
-        filename=filename, owner_id=owner_id, description=description
-    )
+    try:
+        file_data = FileCreateSchema(
+            filename=filename,
+            owner_id=owner_id,
+            description=description,
+            file=file,
+        )
+    except ValidationError:
+        # TODO: перенести в сервис
+        raise FileNotSupported()
+
     return await audio_service.upload_file(file_upload=file_data, file=file)

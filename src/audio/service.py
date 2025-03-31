@@ -35,19 +35,18 @@ class AudiFileService:
                 )
             )
         )
-        # return [
-        #     FileResponseSchema.model_validate(file, from_attributes=True)
-        #     for file in res.all()
-        # ]
+
         return res.all()
 
     async def upload_file(
         self, file_upload: FileCreateSchema, file: UploadFile
     ) -> FileResponseSchema:
         await self.user_service.get_user_by_id(file_upload.owner_id)
-        data = file_upload.model_dump(exclude_none=True)
+
+        data = file_upload.model_dump(exclude_none=True, exclude={"file"})
         data["created_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
         extension = file.filename.split(".")[-1].lower()
+
         self._create_dir()
         path_ = os.path.join(
             settings.FILE_UPLOAD_DIRECTORY,
@@ -84,8 +83,5 @@ class AudiFileService:
             )
             .where(AudioFile.owner_id == user_id)
         )
-        # return [
-        #     FileResponseSchema.model_validate(file, from_attributes=True)
-        #     for file in res.all()
-        # ]
+
         return res.all()

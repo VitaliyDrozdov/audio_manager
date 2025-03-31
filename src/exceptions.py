@@ -28,3 +28,21 @@ class UserNotFoundError(UserError):
             else f"User with id {user_id} not found"
         )
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+
+
+class FileError(HTTPException):
+    """Base exception for user-related errors"""
+
+    pass
+
+
+class FileNotSupported(FileError):
+    def __init__(self, extension=None):
+        message = (
+            "Only audio files allowed"
+            if extension is None
+            else f"Extension '{extension}' not supported"
+        )
+        super().__init__(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=message
+        )
