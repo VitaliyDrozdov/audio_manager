@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     ALGORITHM: str
 
     SUPERUSER_EMAIL: EmailStr
+    SUPERUSER_USERNAME: str
     SUPERUSER_PASSWORD: str
 
     FILE_UPLOAD_DIRECTORY: str
