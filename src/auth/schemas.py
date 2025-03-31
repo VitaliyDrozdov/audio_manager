@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 class TokenSchema(BaseModel):
     user_id: int
     access_token: str
-    token_type: str
+    token_type: str = Field(default="bearer")
 
 
 class TokenData(BaseModel):

@@ -73,6 +73,16 @@ class UserService:
         logging.info(f"Successfully retrieved user with ID: {user_id}")
         return user
 
+    async def get_user_by_email(self, email: str) -> UserProfile:
+        user = await self.db_session.scalar(
+            select(UserProfile).where(UserProfile.email == email)
+        )
+        if not user:
+            logging.warning(f"User not found with email: {email}")
+            raise UserNotFoundError(email)
+        logging.info(f"Successfully retrieved user with email: {email}")
+        return user
+
     async def update_user(
         self, user_update: UserUpdateSchema, user_id: int
     ) -> UserResponseSchema:

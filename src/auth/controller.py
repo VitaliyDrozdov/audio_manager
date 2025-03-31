@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from src.auth.schemas import TokenData, TokenSchema
@@ -39,3 +40,20 @@ async def me(
     current_user: Annotated[TokenData, Depends(get_current_user)],
 ):
     return await user_service.get_user_by_id(current_user.user_id)
+
+
+@router.get("/yandex/redirect", response_class=RedirectResponse)
+async def yandex_login(
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+):
+    redirect_url = auth_service.get_yandex_redirect_url()
+    return RedirectResponse(redirect_url)
+
+
+@router.get("/yandex/callback")
+async def yandex_callback(
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+    # user_service: Annotated[UserService, Depends(get_user_service)],
+    code: str,
+):
+    return await auth_service.yandex_auth(code)
