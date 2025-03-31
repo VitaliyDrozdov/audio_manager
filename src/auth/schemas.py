@@ -1,9 +1,16 @@
 from pydantic import BaseModel, Field
 
 
-class UserLoginSchema(BaseModel):
+class TokenSchema(BaseModel):
     user_id: int
+
     access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    user_id: int | None = None
+    username: str | None = None
 
 
 class YandexUserData(BaseModel):

@@ -62,9 +62,8 @@ class UserNotCorrectPasswordException(Exception):
     detail = "User not correct password"
 
 
-class TokenExpired(Exception):
-    detail = "Token has expired"
-
-
-class TokenNotCorrect(Exception):
-    detail = "Token is not correct"
+class AuthenticationError(HTTPException):
+    def __init__(self, message: str = "Could not validate user"):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=message
+        )
