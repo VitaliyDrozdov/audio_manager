@@ -47,13 +47,14 @@ async def yandex_login(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
     redirect_url = auth_service.get_yandex_redirect_url()
+
     return RedirectResponse(redirect_url)
 
 
 @router.get("/yandex/callback")
 async def yandex_callback(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
-    # user_service: Annotated[UserService, Depends(get_user_service)],
     code: str,
 ):
+    print(code, "code")
     return await auth_service.yandex_auth(code)

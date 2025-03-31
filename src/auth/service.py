@@ -31,6 +31,7 @@ class AuthService:
     user_service: UserService
 
     def get_yandex_redirect_url(self):
+        logging.info(f"yandex_redirect_url: {settings.yandex_redirect_url}")
         return settings.yandex_redirect_url
 
     @staticmethod
@@ -122,10 +123,10 @@ class AuthService:
         )
 
     async def yandex_auth(self, code: str):
-        user_data = await self.yandex_client.get_user_info(code=code)
+        yandex_user_data = await self.yandex_client.get_user_info(code=code)
 
         if user := await self.user_service.get_user_by_email(
-            email=user_data.default_email
+            email=yandex_user_data.default_email
         ):
 
             access_token = self.generate_access_token(
@@ -138,16 +139,15 @@ class AuthService:
             )
             return TokenSchema(user_id=user.id, access_token=access_token)
 
-        create_user_data = UserCreateSchema(
-            first_name=user_data.first_name,
-            last_name=user_data.last_name,
-            email=user_data.default_email,
-            username=user_data.name,
-            # TODO: рефактор
-            password=str(123),
+        create_user = UserCreateSchema(
+            first_name=None,
+            last_name=None,
+            email=yandex_user_data.default_email,
+            username=yandex_user_data.name,
+            password=None,
             role=Roles.SIMPLE_USER,
         )
-        created_user = await self.user_service.create_user(create_user_data)
+        created_user = await self.user_service.create_user(create_user)
         access_token = self.generate_access_token(
             user_id=created_user.id,
             username=created_user.username,

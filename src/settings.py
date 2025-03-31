@@ -1,4 +1,3 @@
-import os
 from functools import lru_cache
 from typing import Literal
 
@@ -14,20 +13,29 @@ class Settings(BaseSettings):
         env_file="../.env", env_ignore_empty=True, extra="ignore"
     )
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
-    SECRET_KEY: str | None = os.getenv("SECRET_KEY")
+    SECRET_KEY: str
 
-    POSTGRES_DB: str | None = os.getenv("POSTGRES_DB")
-    POSTGRES_USER: str | None = os.getenv("POSTGRES_USER")
-    POSTGRES_PASSWORD: str | None = os.getenv("POSTGRES_PASSWORD")
-    POSTGRES_HOST: str | None = os.getenv("POSTGRES_HOST")
-    POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", 5435))
+    POSTGRES_DB: str = ""
+    POSTGRES_USER: str = ""
+    POSTGRES_PASSWORD: str = ""
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    SUPERUSER_EMAIL: EmailStr | None = os.getenv("SUPERUSER_EMAIL")
-    SUPERUSER_PASSWORD: str | None = os.getenv("SUPERUSER_PASSWORD")
+    SUPERUSER_EMAIL: EmailStr | None = None
+    SUPERUSER_PASSWORD: str = ""
 
-    FILE_UPLOAD_DIRECTORY: str = os.getenv("FILE_UPLOAD_DIRECTORY")
+    FILE_UPLOAD_DIRECTORY: str = ""
+
+    YANDEX_CLIENT_ID: str = ""
+    YANDEX_SECRET_KEY: str = ""
+    YANDEX_TOKEN_URL: str = "https://oauth.yandex.ru/token"
+    YANDEX_REDIRECT_URI: str
+
+    @property
+    def yandex_redirect_url(self) -> str:
+        return f"https://oauth.yandex.ru/authorize?response_type=code&client_id={self.YANDEX_CLIENT_ID}&force_confirm=yes"  # noqa E3051
 
 
 @lru_cache

@@ -16,7 +16,7 @@ class UserUpdateSchema(UserBase):
 class UserCreateSchema(UserBase):
     email: EmailStr
     username: str
-    password: str
+    password: str | None
 
 
 class UserResponseSchema(UserBase):

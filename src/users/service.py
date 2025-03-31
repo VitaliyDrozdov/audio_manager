@@ -43,9 +43,10 @@ class UserService:
         user_create_data = user_create.model_dump(
             exclude_none=True, exclude={"password"}
         )
-        user_create_data["password_hash"] = bcrypt_context.hash(
-            user_create.password
-        )
+        if user_create.password:
+            user_create_data["password_hash"] = bcrypt_context.hash(
+                user_create.password
+            )
         try:
             res = await self.db_session.execute(
                 insert(UserProfile)

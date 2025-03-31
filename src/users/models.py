@@ -25,7 +25,7 @@ class UserProfile(Base):
     username: Mapped[str] = mapped_column(
         String(50), nullable=False, unique=True, index=True
     )
-    password_hash: Mapped[str] = mapped_column(String(100), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(100), nullable=True)
     first_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
     last_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
     role: Mapped[int] = mapped_column(

@@ -38,8 +38,13 @@ async def get_yandex_client(
 async def get_auth_service(
     db_session: Annotated[AsyncSession, Depends(db_config.get_db)],
     yandex_client: Annotated[YandexClient, Depends(get_yandex_client)],
+    user_serivce: Annotated[UserService, Depends(get_user_service)],
 ) -> AuthService:
-    return AuthService(db_session=db_session, yandex_client=yandex_client)
+    return AuthService(
+        db_session=db_session,
+        yandex_client=yandex_client,
+        user_service=user_serivce,
+    )
 
 
 async def get_current_user(
