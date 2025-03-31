@@ -1,16 +1,17 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 
-class UserBase(BaseModel):
-    email: EmailStr
-    username: str
-    first_name: str
-    last_name: str
+class FileBase(BaseModel):
+    filename: str
+    filepath: str
+    owner_id: int
+    description: str
 
 
-class UserCreateSchema(UserBase):
-    password: str
+class FileCreate(FileBase):
+    pass
 
 
-class UserResponse(BaseModel):
+class FileResponse(FileBase):
     id: int
+    updated_at: str
