@@ -58,8 +58,11 @@ class FileNotFoundError_(FileError):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=message)
 
 
-class UserNotCorrectPasswordException(Exception):
-    detail = "User not correct password"
+class UserNotCorrectPasswordException(HTTPException):
+    def __init__(self, message: str = "User not correct password"):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=message
+        )
 
 
 class AuthenticationError(HTTPException):

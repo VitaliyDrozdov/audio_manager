@@ -10,7 +10,10 @@ from src.users.schemas import (
 )
 from src.users.service import UserService
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(
+    prefix="/users",
+    tags=["Users"],
+)
 
 
 @router.post(

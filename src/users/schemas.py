@@ -4,9 +4,9 @@ from src.users.models import Roles
 
 
 class UserBase(BaseModel):
-    first_name: str
-    last_name: str
-    role: Roles
+    first_name: str | None
+    last_name: str | None
+    role: Roles | None
 
 
 class UserUpdateSchema(UserBase):

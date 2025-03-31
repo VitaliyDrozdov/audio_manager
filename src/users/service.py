@@ -63,7 +63,7 @@ class UserService:
         user_create_data["id"] = res.scalar()
         return UserResponseSchema(**user_create_data)
 
-    async def get_user_by_id(self, user_id: int) -> UserResponseSchema:
+    async def get_user_by_id(self, user_id: int) -> UserProfile:
         user = await self.db_session.scalar(
             select(UserProfile).where(UserProfile.id == user_id)
         )

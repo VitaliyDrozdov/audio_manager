@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -49,7 +49,7 @@ class AuthService:
     ) -> str:
         payload = {
             "sub": email,
-            "user_id": str(user_id),
+            "user_id": user_id,
             "username": username,
             "email": email,
             "exp": datetime.now(timezone.utc) + expires_delta,
@@ -58,14 +58,12 @@ class AuthService:
             claims=payload, key=settings.SECRET_KEY, algorithm="HS256"
         )
 
-    def verify_token(self, token: str) -> TokenData:
+    def _verify_token(self, token: str) -> TokenData:
         try:
             payload = jwt.decode(
                 token, settings.SECRET_KEY, algorithms="HS256"
             )
-            user_id = payload.get("user_id")
-            if user_id is not None:
-                user_id = int(user_id)
+            user_id: int = int(payload.get("user_id"))
             username: str = payload.get("username")
             email: str = payload.get("email")
             return TokenData(user_id=user_id, username=username, email=email)
@@ -73,7 +71,7 @@ class AuthService:
             raise AuthenticationError("Token expired!")
         except JWTError as e:
             logging.warning(f"Token verification failed: {str(e)}")
-            raise AuthenticationError()
+            raise AuthenticationError(str(e))
 
     async def authenticate_user(self, email: str, password: str):
         user = await self.db_session.scalar(
@@ -82,8 +80,13 @@ class AuthService:
         self._validate_auth_user(user, password)
         return user
 
-    async def login(self, email: str, password: str) -> TokenSchema:
-        user = await self.authenticate_user(email, password)
+    # async def login(self, email: str, password: str) -> TokenSchema:
+    async def login(
+        self, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    ) -> TokenSchema:
+        user = await self.authenticate_user(
+            form_data.username, form_data.password
+        )
         access_token = self.generate_access_token(
             user_id=user.id,
             username=user.username,
@@ -93,11 +96,13 @@ class AuthService:
             ),
         )
         return TokenSchema(
-            user_id=user.id, access_token=access_token, token_type="bearer"
+            user_id=int(user.id),
+            access_token=access_token,
+            token_type="bearer",
         )
 
     async def refresh_access_token(self, old_token: str) -> TokenSchema:
-        token_data = self.verify_token(old_token)
+        token_data = self._verify_token(old_token)
         user = await self.db_session.scalar(
             select(UserProfile).where(
                 UserProfile.id == int(token_data.user_id)
@@ -117,8 +122,3 @@ class AuthService:
         return TokenSchema(
             user_id=user.id, access_token=new_token, token_type="bearer"
         )
-
-    async def get_current_user(
-        self, token: Annotated[str, Depends(oauth2_scheme)]
-    ):
-        return self.verify_token(token)

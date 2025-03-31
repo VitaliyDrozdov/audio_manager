@@ -5,10 +5,14 @@ from pydantic import ValidationError
 
 from src.audio.schemas import FileCreateSchema, FileResponseSchema
 from src.audio.service import AudiFileService
-from src.dependencies import get_audio_service
+from src.dependencies import get_audio_service, get_current_user
 from src.exceptions import FileNotSupported
 
-router = APIRouter(prefix="/audios", tags=["Audios"])
+router = APIRouter(
+    prefix="/audios",
+    tags=["Audios"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.post(

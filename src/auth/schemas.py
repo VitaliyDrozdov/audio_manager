@@ -8,7 +8,7 @@ class TokenSchema(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: str | None = None
+    user_id: int | None = None
     username: str | None = None
     email: str | None = None
 
