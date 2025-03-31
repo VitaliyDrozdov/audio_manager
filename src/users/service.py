@@ -46,7 +46,8 @@ class UserService:
         except Exception as e:
             await self.db_session.rollback()
             logging.error(
-                f"Failed to register user: {user_create.email}. Error: {str(e)}"  # noqa E501
+                f"Failed to register user: {user_create.email}. "
+                f"Error: {str(e)}"
             )
             raise
         user_create_data["id"] = res.scalar()

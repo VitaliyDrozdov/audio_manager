@@ -22,9 +22,9 @@ class UserProfile(Base):
         primary_key=True,
         nullable=False,
     )
-    email: Mapped[str] = mapped_column(unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(unique=True, nullable=False, index=True)
     username: Mapped[str] = mapped_column(
-        String(50), nullable=False, unique=True
+        String(50), nullable=False, unique=True, index=True
     )
     password_hash: Mapped[str] = mapped_column(String(100), nullable=False)
     first_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
