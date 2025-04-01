@@ -74,6 +74,13 @@ SUPERUSER_USERNAME=superuser
 SUPERUSER_PASSWORD=superpassword
 ```
 
+Чтобы авторизироваться через Яндекс нужно пройти по ссылке-редирект. После чего в консоли выведется сгененированная ссылка от Яндекс API. Например:
+```
+https://oauth.yandex.ru/authorize?response_type=code&client_id=2d8e37fed02640e887046dc488152f5b&force_confirm=yes
+```
+Далее нужно перейти по этой ссылке и залогиниться в свой аккаунт.
+
+
 ## Автор :
 
 [VitaliyDrozdov](https://github.com/VitaliyDrozdov)

@@ -63,7 +63,7 @@ class AuthService:
             "user_id": user_id,
             "username": username,
             "email": email,
-            "role": role,
+            "role": role.value,
             "exp": datetime.now(timezone.utc) + expires_delta,
         }
         return jwt.encode(
