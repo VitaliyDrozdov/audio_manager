@@ -78,6 +78,7 @@ class UserService:
         user = await self.db_session.scalar(
             select(UserProfile).where(UserProfile.email == email)
         )
+        # TODO: рефактор
         if not user:
             return None
         #     logging.warning(f"User not found with email: {email}")

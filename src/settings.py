@@ -9,6 +9,8 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
+    """Application settings loaded from environment variables."""
+
     model_config = SettingsConfigDict(
         env_file="./.env", env_ignore_empty=True, extra="ignore"
     )
@@ -42,6 +44,7 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings():
+    """Returns cached settings instance."""
     return Settings()
 
 

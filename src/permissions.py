@@ -9,6 +9,8 @@ from src.users.models import Roles
 
 
 def roles_required(min_required_role: Roles):
+    """Dependency that checks if the current user has the required role."""
+
     def _check_role(get_user: Annotated[TokenData, Depends(get_current_user)]):
 
         if get_user.role < min_required_role.value:

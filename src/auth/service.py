@@ -26,6 +26,11 @@ from src.users.service import UserService, bcrypt_context
 
 @dataclass
 class AuthService:
+    """
+    Authentication service for user login, token generation,
+    and Yandex OAuth integration.
+    """
+
     yandex_client: YandexClient
     db_session: AsyncSession
     user_service: UserService
@@ -52,12 +57,13 @@ class AuthService:
         role: int,
         expires_delta: timedelta,
     ) -> str:
+        """Generates an access token (JWT) for a user."""
         payload = {
             "sub": email,
             "user_id": user_id,
             "username": username,
             "email": email,
-            "role": role.value,
+            "role": role,
             "exp": datetime.now(timezone.utc) + expires_delta,
         }
         return jwt.encode(
@@ -88,6 +94,9 @@ class AuthService:
             raise AuthenticationError(str(e))
 
     async def authenticate_user(self, email: str, password: str):
+        """
+        Authenticates a user by checking their email and password.
+        """
         user = await self.db_session.scalar(
             select(UserProfile).where(UserProfile.email == email)
         )
@@ -98,6 +107,10 @@ class AuthService:
         self,
         form_data: BaseAuth,
     ) -> TokenSchema:
+        """
+        Logs a user in by validating their credentials
+        and generating an access token.
+        """
         user = await self.authenticate_user(
             form_data.email, form_data.password
         )
@@ -119,6 +132,9 @@ class AuthService:
         )
 
     async def refresh_access_token(self, old_token: str) -> TokenSchema:
+        """
+        Refreshes an access token using the provided old token.
+        """
         token_data = self._verify_token(old_token)
         user = await self.db_session.scalar(
             select(UserProfile).where(
@@ -142,6 +158,9 @@ class AuthService:
         )
 
     async def yandex_auth(self, code: str):
+        """
+        Authenticates a user via Yandex OAuth.
+        """
         yandex_user_data = await self.yandex_client.get_user_info(code=code)
         user = await self.user_service.get_user_by_email(
             email=yandex_user_data.default_email

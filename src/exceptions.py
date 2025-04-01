@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 
 
-# TODO: добавить обычные исклюючения(не http) для сервисного слоя
+# TODO: добавить обычные исклюючения для сервисного слоя
 class UserError(HTTPException):
     """Base exception for user-related errors"""
 

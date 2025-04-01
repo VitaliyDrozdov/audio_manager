@@ -11,6 +11,7 @@ from src.settings import settings
 
 
 class DBConfig:
+    """Handles database configuration and provides async session management."""
 
     DATABASE_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"  # noqa E501
     engine = create_async_engine(DATABASE_URL, echo=True)
@@ -22,6 +23,7 @@ class DBConfig:
     )
 
     async def get_db(self) -> AsyncGenerator[AsyncSession, None]:
+        """Provides an async database session."""
         async with self.AsyncSession_() as session:
             yield session
 

@@ -14,6 +14,10 @@ class LogLevels(StrEnum):
 
 
 def configure_logging(log_level: str = LogLevels.error):
+    """
+    Configures the logging settings for the application based
+    on the given log level.
+    """
     log_level = str(log_level).upper()
     log_levels = [level.value for level in LogLevels]
 

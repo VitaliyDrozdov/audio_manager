@@ -10,6 +10,11 @@ from src.users.service import bcrypt_context
 
 
 async def create_superuser(app: FastAPI):
+    """
+    Creates a superuser if one does not exist. This function checks if
+    a superuser exists by querying the database. If not, it creates a new
+    superuser with the credentials provided in the settings.
+    """
     async with db_config.AsyncSession_() as session:
         superuser = await session.execute(
             select(UserProfile).where(UserProfile.role == Roles.SUPERUSER)

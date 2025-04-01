@@ -25,6 +25,9 @@ class AudiFileService:
 
     @staticmethod
     def _create_dir():
+        """
+        Creates the directory for file uploads if it does not already exist.
+        """
         if not os.path.exists(settings.FILE_UPLOAD_DIRECTORY):
             os.makedirs(settings.FILE_UPLOAD_DIRECTORY)
 
@@ -42,6 +45,10 @@ class AudiFileService:
     async def upload_file(
         self, file_upload: FileCreateSchema, file: UploadFile
     ) -> FileResponseSchema:
+        """
+        Uploads an audio file with specified filename, stores it in the system,
+        and saves its metadata to the database.
+        """
         await self.user_service.get_user_by_id(file_upload.owner_id)
 
         data = file_upload.model_dump(exclude_none=True, exclude={"file"})
@@ -74,6 +81,9 @@ class AudiFileService:
         return FileResponseSchema(**data)
 
     async def get_files_by_user(self, user_id: int) -> Sequence[AudioFile]:
+        """
+        Retrieves all audio files associated with a specific user.
+        """
         await self.user_service.get_user_by_id(user_id)
         res = await self.db_session.scalars(
             select(AudioFile)
@@ -88,6 +98,9 @@ class AudiFileService:
         return res.all()
 
     async def get_file_by_id(self, file_id: int) -> AudioFile:
+        """
+        Retrieves a specific audio file by its ID.
+        """
         file = await self.db_session.scalar(
             select(AudioFile).where(AudioFile.id == file_id)
         )
