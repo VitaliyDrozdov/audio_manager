@@ -15,8 +15,8 @@ RUN mkdir -p $APP_HOME \
 WORKDIR $HOME
 
 COPY src src
+COPY migrations migrations
 ADD alembic.ini .
-ADD migrations .
 ADD requirements_all.txt .
 
 
