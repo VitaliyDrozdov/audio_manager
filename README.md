@@ -49,9 +49,14 @@ Audio manager using FastAPI
 
 
 ```text
-docker compose up --build -d
+docker compose up --build
 ```
 
+После успешного запуска контейнеров, выполните следующую команду, выполнит миграции:
+
+```shell
+docker exec -it audio_manager_project-backend-1 sh -c "alembic upgrade head"
+```
 </p>
 
 Документация будет доступна по адресу:

@@ -16,6 +16,7 @@ WORKDIR $HOME
 
 COPY src src
 ADD alembic.ini .
+ADD migrations .
 ADD requirements_all.txt .
 
 
